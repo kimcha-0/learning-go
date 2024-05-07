@@ -1,15 +1,17 @@
 package main
 
 import (
-     "image"
-     "image/color"
-     "image/gif"
-     "io"
-     "math"
-     "math/rand"
-     "os"
-     "net/http"
-     "log"
+    "strconv"
+    "fmt"
+    "image"
+    "image/color"
+    "image/gif"
+    "io"
+    "math"
+    "math/rand"
+    "os"
+    "net/http"
+    "log"
 )
 
 var palette = []color.Color{
@@ -24,27 +26,38 @@ const (
     blackIndex = 1
 )
 
+const (
+    cycles = 5
+    res = 0.001
+    size = 300
+    nframes = 64
+    delay = 8
+)
+
+
 func main() {
     if (len(os.Args) > 1 && os.Args[1] == "web") {
-        handler := func(w http.ResponseWriter, r *http.Request) {
-            lissajous(w)
-        }
-        http.HandleFunc("/", handler)
-        http.HandleFunc("/?cycles", handler)
+        http.HandleFunc("/", displayGif)
         log.Fatal(http.ListenAndServe("localhost:8000", nil))
         return
     }
     lissajous(os.Stdout)
 }
 
+func setCycles(w http.ResponseWriter, r *http.Request) {
+    var newCycles string
+    var result int
+    var err error
+    newCycles = r.URL.Query().Get("cycles")
+    result, err = strconv.Atoi(newCycles)
+    fmt.Fprintf(w, "cycles set to %q\n", newCycles)
+}
+
+func displayGif(w http.ResponseWriter, r *http.Request) {
+    lissajous(w)
+}
+
 func lissajous(out io.Writer) {
-    const (
-        cycles = 5
-        res = 0.001
-        size = 300
-        nframes = 64
-        delay = 8
-    )
     freq := rand.Float64() * 3.0
     anim := gif.GIF{LoopCount: nframes}
     phase := 0.02
