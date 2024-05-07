@@ -8,6 +8,8 @@ import (
      "math"
      "math/rand"
      "os"
+     "net/http"
+     "log"
 )
 
 var palette = []color.Color{
@@ -23,6 +25,15 @@ const (
 )
 
 func main() {
+    if (len(os.Args) > 1 && os.Args[1] == "web") {
+        handler := func(w http.ResponseWriter, r *http.Request) {
+            lissajous(w)
+        }
+        http.HandleFunc("/", handler)
+        http.HandleFunc("/?cycles", handler)
+        log.Fatal(http.ListenAndServe("localhost:8000", nil))
+        return
+    }
     lissajous(os.Stdout)
 }
 
@@ -30,7 +41,7 @@ func lissajous(out io.Writer) {
     const (
         cycles = 5
         res = 0.001
-        size = 100
+        size = 300
         nframes = 64
         delay = 8
     )
