@@ -17,6 +17,9 @@ func server3() {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
+    mu.Lock()
+    count++
+    mu.Unlock()
     // handler echoes HTTP Request
     fmt.Fprintf(w, "%s %s %s\n", r.Method, r.URL, r.Proto)
     for k, v := range r.Header {
